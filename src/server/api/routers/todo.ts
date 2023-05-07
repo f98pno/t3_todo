@@ -28,7 +28,6 @@ export const todoRouter = createTRPCRouter({
         done: true,
       },
     ];
-    return "you can now see this secret message!";
   }),
 
   create: protectedProcedure
