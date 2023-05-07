@@ -1,5 +1,4 @@
 import { api } from "@/utils/api";
-import Todo from "@/components/Todo";
 import { useState } from "react";
 import { todoInput } from "@/types";
 import { toast } from "react-hot-toast";
@@ -22,7 +21,8 @@ export default function CreateTodo() {
       trpc.todo.all.setData(undefined, (prev) => {
         const optimisticTodo = {
           id: "optimistic-todo-id",
-          text: "placeholder",
+          text: newTodo,
+          //text: "placeholder",
           done: false,
         };
         if (!prev) return [optimisticTodo];

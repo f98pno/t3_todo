@@ -35,6 +35,8 @@ export const todoRouter = createTRPCRouter({
   create: protectedProcedure
     .input(todoInput)
     .mutation(async ({ ctx, input }) => {
+      // For testing purposes, we can throw an error here
+      // throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       return ctx.prisma.todo.create({
         data: {
           text: input,
