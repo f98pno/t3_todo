@@ -1,4 +1,5 @@
 import type { Todo } from "@/types";
+import { api } from "@/utils/api";
 
 type TodoProps = {
   todo: Todo;
@@ -6,6 +7,14 @@ type TodoProps = {
 
 export default function Todo({ todo }: TodoProps) {
   const { id, text, done } = todo;
+
+  const trpc = api.useContext();
+
+  const { mutate: doneMutation } = api.todo.toggle.useMutation({
+    onSettled: async () => {
+      await trpc.todo.all.invalidate();
+    },
+  });
 
   return (
     <>
@@ -17,6 +26,9 @@ export default function Todo({ todo }: TodoProps) {
             name="done"
             id={id}
             checked={done}
+            onChange={(e) => {
+              doneMutation({ id, done: e.target.checked });
+            }}
           />
           <label
             htmlFor={id}
