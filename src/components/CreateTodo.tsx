@@ -11,6 +11,35 @@ export default function CreateTodo() {
   const trpc = api.useContext();
 
   const { mutate } = api.todo.create.useMutation({
+    onMutate: async (newTodo) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update
+      await trpc.todo.all.cancel();
+
+      // Snapshot the previous value
+      const previousTodos = trpc.todo.all.getData();
+
+      // Optimistically update to the new value
+      trpc.todo.all.setData(undefined, (prev) => {
+        const optimisticTodo = {
+          id: "optimistic-todo-id",
+          text: "placeholder",
+          done: false,
+        };
+        if (!prev) return [optimisticTodo];
+        return [...prev, optimisticTodo];
+      });
+
+      setNewTodo("");
+
+      // Return a context object with the snapshotted value if the update fails
+      return { previousTodos };
+    },
+    onError: (err, newTodo, context) => {
+      toast.error("An error occurred when createing Todo");
+      setNewTodo(newTodo);
+      trpc.todo.all.setData(undefined, () => context?.previousTodos);
+    },
+
     // will invalidate the todos in the cache and refetch all
     onSettled: async () => await trpc.todo.all.invalidate(),
   });
